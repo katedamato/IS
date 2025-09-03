@@ -1,1 +1,69 @@
-import dashfrom dash import dcc, htmlfrom dash.dependencies import Input, Outputimport plotly.express as pximport pandas as pdlf = pd.read_csv("https://vincentarelbundock.github.io/Rdatasets/csv/sampleSelection/Mroz87.csv", index_col=0)print(lf.head())lf_worked = lf[lf['hours'] > 0]agg_lf = lf.groupby('motheduc').agg({           'wage': 'mean'    # average wage per category})#Setting up the data df= lf.copy()# Convert boolean columns to 0/1bool_cols = ['wifecoll', 'huscoll']for col in bool_cols:    df[col] = df[col].map({'TRUE': 1, 'FALSE': 0})#Initialize the Dash appapp = dash.Dash(__name__)#Get numeric columns for dropdown- Finds all numeric columns numeric_cols = df.select_dtypes(include="number").columns#laying out the Dashboard ("App")app.layout = html.Div([    html.H2("Histogram Dashboard"),    #A container for the whole app and using python Html         dcc.Dropdown(        id="variable-dropdown",        options=[{"label": col, "value": col} for col in numeric_cols],        value=numeric_cols[0],        clearable=False    ),    #Creates dropdown, options fills menu with column names, default choice is first numeric column         dcc.Graph(id="histogram")    #updated later ^ placeholder for graph     ])#Interactive element0 input is the change in the dropdown and output is the update in figure @app.callback(    Output("histogram", "figure"),    Input("variable-dropdown", "value"))def update_histogram(selected_var):    fig = px.histogram(df, x=selected_var, nbins=20,                       title=f"Histogram of {selected_var}")    return fig#Run the app: makes a local web server  if __name__ == "__main__":    url = "http://127.0.0.1:8050/"    print(f"Your Dash app is running at: {url}")        import webbrowser    webbrowser.open(url)        app.run(debug=True, use_reloader=False)
+import dash
+from dash import dcc, html
+from dash.dependencies import Input, Output
+import plotly.express as px
+import pandas as pd
+
+
+lf = pd.read_csv("https://vincentarelbundock.github.io/Rdatasets/csv/sampleSelection/Mroz87.csv", index_col=0)
+print(lf.head())
+lf_worked = lf[lf['hours'] > 0]
+
+
+agg_lf = lf.groupby('motheduc').agg({       
+    'wage': 'mean'    # average wage per category
+})
+
+
+#Setting up the data 
+df= lf.copy()
+
+# Convert boolean columns to 0/1
+bool_cols = ['wifecoll', 'huscoll']
+for col in bool_cols:
+    df[col] = df[col].map({'TRUE': 1, 'FALSE': 0})
+
+#Initialize the Dash app
+app = dash.Dash(__name__)
+
+
+#Get numeric columns for dropdown- Finds all numeric columns 
+numeric_cols = df.select_dtypes(include="number").columns
+
+#laying out the Dashboard ("App")
+app.layout = html.Div([
+    html.H2("Histogram Dashboard"),
+    #A container for the whole app and using python Html 
+    
+    dcc.Dropdown(
+        id="variable-dropdown",
+        options=[{"label": col, "value": col} for col in numeric_cols],
+        value=numeric_cols[0],
+        clearable=False
+    ),
+    #Creates dropdown, options fills menu with column names, default choice is first numeric column 
+    
+    dcc.Graph(id="histogram")
+    #updated later ^ placeholder for graph 
+    ])
+
+#Interactive element: input is the change in the dropdown and output is the update in figure 
+@app.callback(
+    Output("histogram", "figure"),
+    Input("variable-dropdown", "value")
+)
+def update_histogram(selected_var):
+    fig = px.histogram(df, x=selected_var, nbins=20,
+                       title=f"Histogram of {selected_var}")
+    return fig
+
+#Run the app: makes a local web server  
+if __name__ == "__main__":
+    url = "http://127.0.0.1:8050/"
+    print(f"Your Dash app is running at: {url}")
+    
+    import webbrowser
+    webbrowser.open(url)
+    
+    app.run(debug=True, use_reloader=False)
+
