@@ -1,1 +1,1 @@
-# IS
+Independent Study Notes and Assignments 
