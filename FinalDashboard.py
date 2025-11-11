@@ -34,6 +34,8 @@ else:
         on_bad_lines='skip'
     )
 
+
+#return 
 df = df[pd.to_numeric(df["OBS_VALUE"], errors="coerce").notna()]
 df = df[~df["STRUCTURE_ID"].str.contains("Start/end months", na=False)]
 
